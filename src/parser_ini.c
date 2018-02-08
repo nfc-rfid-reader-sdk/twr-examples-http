@@ -7,6 +7,71 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+
+//==================================================================
+
+char * trim_val(char *in)
+{
+	if (!in)
+		return 0;
+
+	char *n;
+	char *start = 0;
+	int eq_skipped = 0;
+
+	for (n = in; *n != '\r'; ++n)
+	{
+		if (isspace(*n))
+		{
+			if (start)
+			{
+				// end > stop
+				*n = 0;
+
+				break;
+			}
+		}
+		else if (*n == '=')
+		{
+			if (eq_skipped)
+			{
+				return 0;
+			}
+			else
+			{
+				eq_skipped = 1;
+			}
+		}
+//		else if (isalnum(*n))
+		else if (isascii(*n))
+		{
+			if (start)
+			{
+				// continue
+			}
+			else
+			{
+				if (eq_skipped)
+				{
+					start = n;
+				}
+				else
+				{
+					// error in format: no '='
+					return 0;
+				}
+			}
+		}
+		else
+		{
+			// not valid data
+			return 0;
+		}
+	}
+
+	return start;
+}
 
 //==================================================================
 int get_ini_str(const char *ini_file_name, const char *setting_key,
@@ -21,12 +86,18 @@ int get_ini_str(const char *ini_file_name, const char *setting_key,
 	if (fini)
 	{
 		// read line by line
-		while (fgets(line, 511, fini))
+		while (fgets(line, sizeof(line) - 1, fini))
 		{
 			f = strstr(line, setting_key);
 
 			if (f)
+			{
+				f += strlen(setting_key);
+
+				f = trim_val(f);
+
 				break;
+			}
 		}
 
 		fclose(fini);
@@ -39,12 +110,6 @@ int get_ini_str(const char *ini_file_name, const char *setting_key,
 
 	if (f)
 	{
-		f += strlen(setting_key);
-
-		// white char
-
-		f++; // skip '='
-
 		strcpy(setting_out_value, f);
 
 		r = 0;
