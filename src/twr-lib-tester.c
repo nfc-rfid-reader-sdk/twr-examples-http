@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tools.h"
+#include "http.h"
 //-----------------------------
 // OS specific
 #include <windows.h>
@@ -33,6 +34,10 @@ int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 	char uid_str[UID_STR_LEN_MAX + 1]; // +1 null character
 	size_t uid_str_len = UID_STR_LEN_MAX;
 
+	char *twr_ack_url = "http://srdjantest.d-logic.net/twr/ack.php";
+	char post_data[256];
+	int r_status;
+
 	hex2str(uid, uid_len, uid_str, &uid_str_len);
 	// TODO: test hex2str() result
 
@@ -42,9 +47,11 @@ int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 	printf("Arrived packet from TWR SN:[%8s] with UID[len:%d]= %s | "
 			"control_info= %d\n\n", sn, uid_len, uid_str, control_info);
 
-	puts("Application send ACK...");
+	sprintf(post_data, "SN=%s&UID=%s&CTRLINFO=%d", sn, uid_str, control_info);
+	r_status = http_ack(twr_ack_url, post_data);
 
-	int r_status = 0; // OK
+	//------------------------------
+	puts("Application send ACK...");
 
 	e = TWR_Packet_Ack(sn, uid, uid_len, control_info, r_status);
 
