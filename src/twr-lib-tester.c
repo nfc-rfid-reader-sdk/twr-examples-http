@@ -14,6 +14,7 @@
 #include <string.h>
 #include "tools.h"
 #include "http.h"
+#include "parser_ini.h"
 //-----------------------------
 // OS specific
 #include <windows.h>
@@ -22,9 +23,15 @@
 static int polling = TRUE;
 
 // UID for stop polling - exit from application
-u8 stop_uid[4] = { 0x16, 0x78, 0x58, 0x56 };
+u8 stop_uid[4] =
+{ 0x16, 0x78, 0x58, 0x56 };
 
 //------------------------------------------------------------------
+
+char twr_ack_url[512];
+// default ACK URL
+#define TWR_ACK_URL "http://localhost/twr/ack.php"
+//---
 
 #define UID_STR_LEN_MAX		32
 
@@ -34,7 +41,6 @@ int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 	char uid_str[UID_STR_LEN_MAX + 1]; // +1 null character
 	size_t uid_str_len = UID_STR_LEN_MAX;
 
-	char *twr_ack_url = "http://srdjantest.d-logic.net/twr/ack.php";
 	char post_data[256];
 	int r_status;
 
@@ -78,12 +84,18 @@ int fCB_Error(int err_id, const char *err_msg)
 	return 0;
 }
 
+//==================================================================
+
 int main(void)
 {
 	TWR_STATUS e;
 
 	printf("Tester for TWR-comm library version: ");
 	puts(TWR_GetLibraryVersionStr());
+
+	// get web-script URI address for TWR ACK from INI file
+	get_ini_str("settings.ini", "ACK_URI", twr_ack_url, TWR_ACK_URL);
+	printf("settings::twr_ack_url= %s\n", twr_ack_url);
 
 	e = TWR_registerCB_Error(fCB_Error);
 	printf("TWR_registerCB_Error(fCB_Error) : %s\n", TWR_Status2Str(e));
