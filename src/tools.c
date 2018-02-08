@@ -2,7 +2,7 @@
  * tools.c
  *
  *  Created on: 08.02.2018.
- *      Author: srkos
+ *      Author: Digital Logic
  */
 
 #include <string.h>
