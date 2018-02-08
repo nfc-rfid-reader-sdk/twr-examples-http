@@ -20,7 +20,16 @@ size_t CB_http_get_response(void *ptr, size_t size, size_t nmemb, void *stream)
 
 	int *ret_val = (int *) stream;
 
-	*ret_val = strncmp(ptr, ok_str, ok_str_len);
+	if (strncmp(ptr, ok_str, ok_str_len))
+	{
+		// differ
+		*ret_val = RETURN_ACK_ERROR;
+	}
+	else
+	{
+		// same == OK
+		*ret_val = RETURN_ACK_OK;
+	}
 
 	return nmemb;
 }
