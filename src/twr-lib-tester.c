@@ -43,7 +43,7 @@ int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 	size_t uid_str_len = UID_STR_LEN_MAX;
 
 	char post_data[256];
-	int r_status;
+	int r_status = 0;
 
 	hex2str(uid, uid_len, uid_str, &uid_str_len);
 	// TODO: test hex2str() result
