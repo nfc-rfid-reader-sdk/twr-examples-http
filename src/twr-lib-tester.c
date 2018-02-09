@@ -37,6 +37,7 @@ char twr_ack_url[512];
 
 int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 {
+	unsigned long elapsed = GetTickCount();
 	TWR_STATUS e;
 	char uid_str[UID_STR_LEN_MAX + 1]; // +1 null character
 	size_t uid_str_len = UID_STR_LEN_MAX;
@@ -57,7 +58,9 @@ int fCB_UID(c_string sn, u8 uid[], int uid_len, int control_info)
 	r_status = http_ack(twr_ack_url, post_data);
 
 	//------------------------------
-	puts("Application send ACK...");
+	elapsed = GetTickCount() - elapsed;
+
+	printf("Application send ACK (%d) after %lu ms\n", r_status, elapsed);
 
 	e = TWR_Packet_Ack(sn, uid, uid_len, control_info, r_status);
 
